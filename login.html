@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>🎮 PS3 HEN - Acesso</title>
+<script src="codes.js"></script>
+<style>
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: white;
+}
+.container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+}
+.subtitle {
+    margin: 0 0 30px 0;
+    opacity: 0.9;
+}
+input {
+    width: 100%;
+    padding: 15px;
+    margin: 20px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    text-align: center;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+button {
+    width: 100%;
+    padding: 15px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+button:hover {
+    background: #45a049;
+    transform: scale(1.05);
+}
+.error {
+    background: rgba(244,67,54,0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: none;
+}
+.info {
+    margin-top: 30px;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🎮 PS3 HEN</h1>
+    <p class="subtitle">Auto Installer</p>
+    
+    <p>Digite seu código de acesso:</p>
+    
+    <input 
+        type="text" 
+        id="codeInput" 
+        placeholder="HEN-XXXXX-XXX"
+        autocomplete="off"
+        maxlength="20"
+    />
+    
+    <button onclick="checkCode()">Acessar Instalador</button>
+    
+    <div id="error" class="error"></div>
+    
+    <div class="info">
+        <p>📱 Não tem um código?<br>Entre em contato para adquirir.</p>
+        <p style="font-size:0.8em; margin-top:20px;">
+            Suporta firmwares 4.84 - 4.92 HFW
+        </p>
+    </div>
+</div>
+
+<script>
+function checkCode() {
+    var input = document.getElementById('codeInput');
+    var code = input.value.trim().toUpperCase();
+    var errorDiv = document.getElementById('error');
+    
+    if (!code) {
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = '⚠️ Digite um código válido!';
+        return;
+    }
+    
+    var result = validateCode(code);
+    
+    if (result.valid) {
+        // Salva código na sessão
+        sessionStorage.setItem('henCode', code);
+        sessionStorage.setItem('henCodeTime', Date.now());
+        // Redireciona para instalador
+        window.location.href = 'index.html';
+    } else {
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = '❌ ' + result.message;
+        input.value = '';
+        input.focus();
+    }
+}
+
+// Enter para enviar
+document.getElementById('codeInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        checkCode();
+    }
+});
+
+// Foco automático
+document.getElementById('codeInput').focus();
+</script>
+</body>
+</html>
