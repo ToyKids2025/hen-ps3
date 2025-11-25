@@ -119,10 +119,17 @@ function checkCode() {
         // Salva código na sessão
         sessionStorage.setItem('henCode', code);
         sessionStorage.setItem('henCodeTime', Date.now());
+        // Mostra mensagem de sucesso
+        errorDiv.style.display = 'block';
+        errorDiv.style.background = 'rgba(76,175,80,0.8)';
+        errorDiv.innerHTML = '✅ ' + result.message + '<br>Redirecionando...';
         // Redireciona para instalador
-        window.location.href = 'index.html';
+        setTimeout(function() {
+            window.location.href = 'installer.html';
+        }, 1500);
     } else {
         errorDiv.style.display = 'block';
+        errorDiv.style.background = 'rgba(244,67,54,0.8)';
         errorDiv.innerHTML = '❌ ' + result.message;
         input.value = '';
         input.focus();

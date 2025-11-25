@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>🔐 Admin - HEN PS3</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: none;
+}
+
+.header {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.generator {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.codes-list {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+button {
+    padding: 15px 30px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 5px;
+}
+
+button:hover {
+    background: #45a049;
+    transform: scale(1.05);
+}
+
+button.danger {
+    background: #f44336;
+}
+
+button.danger:hover {
+    background: #da190b;
+}
+
+button.secondary {
+    background: #2196F3;
+}
+
+button.secondary:hover {
+    background: #0b7dda;
+}
+
+.code-item {
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.code-info {
+    flex-grow: 1;
+}
+
+.code-text {
+    font-size: 1.3em;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    color: #4CAF50;
+    margin-bottom: 5px;
+}
+
+.code-expires {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.expired {
+    color: #f44336;
+}
+
+.active {
+    color: #4CAF50;
+}
+
+.code-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.generated-code {
+    background: rgba(76,175,80,0.2);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 2px solid #4CAF50;
+    display: none;
+}
+
+.generated-code-text {
+    font-size: 2em;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    color: #4CAF50;
+    margin: 10px 0;
+    letter-spacing: 2px;
+}
+
+.error {
+    background: rgba(244,67,54,0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px 0;
+    display: none;
+}
+
+h1, h2, h3 {
+    margin-bottom: 15px;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+
+<!-- Tela de Login Admin -->
+<div id="loginContainer" class="login-container">
+    <h1>🔐 Painel Admin</h1>
+    <p style="margin: 20px 0; opacity: 0.9;">Digite a senha de administrador</p>
+
+    <input
+        type="password"
+        id="adminPassword"
+        placeholder="Senha Admin"
+        autocomplete="off"
+    />
+
+    <button onclick="loginAdmin()">Entrar</button>
+
+    <div id="loginError" class="error"></div>
+
+    <p style="margin-top: 30px; font-size: 0.85em; opacity: 0.7;">
+        <a href="index.html" style="color: white;">← Voltar ao site</a>
+    </p>
+</div>
+
+<!-- Painel Admin -->
+<div id="adminContainer" class="admin-container">
+
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <h1>🎮 Painel Administrativo - HEN PS3</h1>
+            <p>Gerencie códigos de acesso</p>
+        </div>
+        <button onclick="logout()" class="danger">Sair</button>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="stats">
+        <div class="stat-card">
+            <h3>📊 Total de Códigos</h3>
+            <div class="stat-number" id="totalCodes">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>✅ Códigos Ativos</h3>
+            <div class="stat-number" id="activeCodes">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>❌ Códigos Expirados</h3>
+            <div class="stat-number" id="expiredCodes">0</div>
+        </div>
+    </div>
+
+    <!-- Gerador de Códigos -->
+    <div class="generator">
+        <h2>🎲 Gerar Novo Código</h2>
+        <p style="margin-bottom: 20px; opacity: 0.9;">
+            Gera automaticamente um código válido por 72 horas
+        </p>
+
+        <button onclick="generateCode()">🎫 Gerar Código (72h)</button>
+        <button onclick="generateCode(7)" class="secondary">🎫 Gerar Código (7 dias)</button>
+        <button onclick="generateCode(30)" class="secondary">🎫 Gerar Código (30 dias)</button>
+
+        <div id="generatedCodeBox" class="generated-code">
+            <h3>✅ Código Gerado com Sucesso!</h3>
+            <div class="generated-code-text" id="generatedCodeText"></div>
+            <p>Válido até: <span id="generatedCodeExpiry"></span></p>
+            <button onclick="copyCode()" class="secondary">📋 Copiar Código</button>
+        </div>
+    </div>
+
+    <!-- Lista de Códigos -->
+    <div class="codes-list">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>📝 Códigos Cadastrados</h2>
+            <button onclick="loadCodes()" class="btn-small secondary">🔄 Atualizar</button>
+        </div>
+        <div id="codesList"></div>
+    </div>
+
+</div>
+
+<script>
+// ============================================
+// CONFIGURAÇÕES
+// ============================================
+const ADMIN_PASSWORD = "admin123"; // ⚠️ ALTERE ESTA SENHA!
+const CODE_PREFIX = "HEN";
+const STORAGE_KEY = "henCodes";
+
+// ============================================
+// FUNÇÕES DE LOGIN
+// ============================================
+function loginAdmin() {
+    const password = document.getElementById('adminPassword').value;
+    const errorDiv = document.getElementById('loginError');
+
+    if (password === ADMIN_PASSWORD) {
+        sessionStorage.setItem('adminAuth', 'true');
+        showAdminPanel();
+    } else {
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = '❌ Senha incorreta!';
+        document.getElementById('adminPassword').value = '';
+    }
+}
+
+function logout() {
+    sessionStorage.removeItem('adminAuth');
+    location.reload();
+}
+
+function checkAuth() {
+    if (sessionStorage.getItem('adminAuth') === 'true') {
+        showAdminPanel();
+    }
+}
+
+function showAdminPanel() {
+    document.getElementById('loginContainer').style.display = 'none';
+    document.getElementById('adminContainer').style.display = 'block';
+    loadCodes();
+}
+
+// ============================================
+// FUNÇÕES DE GERENCIAMENTO DE CÓDIGOS
+// ============================================
+function generateCode(days = 3) {
+    // Gerar código único
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substr(2, 5).toUpperCase();
+    const code = `${CODE_PREFIX}-${timestamp}-${random}`;
+
+    // Calcular data de expiração (padrão 72 horas)
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + days);
+
+    // Salvar código
+    const codes = getCodes();
+    codes[code] = {
+        expiry: expiryDate.toISOString(),
+        created: new Date().toISOString(),
+        days: days
+    };
+    saveCodes(codes);
+
+    // Mostrar código gerado
+    document.getElementById('generatedCodeText').textContent = code;
+    document.getElementById('generatedCodeExpiry').textContent = formatDate(expiryDate);
+    document.getElementById('generatedCodeBox').style.display = 'block';
+
+    // Recarregar lista
+    loadCodes();
+
+    // Scroll para o código gerado
+    document.getElementById('generatedCodeBox').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyCode() {
+    const code = document.getElementById('generatedCodeText').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        alert('✅ Código copiado para a área de transferência!');
+    });
+}
+
+function deleteCode(code) {
+    if (confirm(`Tem certeza que deseja excluir o código ${code}?`)) {
+        const codes = getCodes();
+        delete codes[code];
+        saveCodes(codes);
+        loadCodes();
+    }
+}
+
+function renewCode(code, days = 3) {
+    const codes = getCodes();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + days);
+
+    codes[code].expiry = expiryDate.toISOString();
+    codes[code].days = days;
+    saveCodes(codes);
+    loadCodes();
+
+    alert(`✅ Código renovado por mais ${days} dias!`);
+}
+
+function loadCodes() {
+    const codes = getCodes();
+    const codesList = document.getElementById('codesList');
+    const now = new Date();
+
+    let total = 0;
+    let active = 0;
+    let expired = 0;
+    let html = '';
+
+    // Converter objeto em array e ordenar por data de criação (mais recente primeiro)
+    const codesArray = Object.entries(codes).sort((a, b) => {
+        return new Date(b[1].created) - new Date(a[1].created);
+    });
+
+    if (codesArray.length === 0) {
+        html = '<p style="text-align: center; opacity: 0.7; padding: 40px;">Nenhum código cadastrado ainda</p>';
+    } else {
+        codesArray.forEach(([code, data]) => {
+            total++;
+            const expiryDate = new Date(data.expiry);
+            const isExpired = now > expiryDate;
+
+            if (isExpired) {
+                expired++;
+            } else {
+                active++;
+            }
+
+            const statusClass = isExpired ? 'expired' : 'active';
+            const statusText = isExpired ? '❌ EXPIRADO' : '✅ ATIVO';
+
+            html += `
+                <div class="code-item">
+                    <div class="code-info">
+                        <div class="code-text">${code}</div>
+                        <div class="code-expires">
+                            <span class="${statusClass}">${statusText}</span> •
+                            Criado em: ${formatDate(new Date(data.created))} •
+                            Validade: ${formatDate(expiryDate)}
+                            (${data.days} dias)
+                        </div>
+                    </div>
+                    <div class="code-actions">
+                        ${!isExpired ? `
+                            <button onclick="renewCode('${code}', 3)" class="btn-small secondary" title="Renovar por 3 dias">+3d</button>
+                            <button onclick="renewCode('${code}', 7)" class="btn-small secondary" title="Renovar por 7 dias">+7d</button>
+                        ` : ''}
+                        <button onclick="deleteCode('${code}')" class="btn-small danger">🗑️</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    codesList.innerHTML = html;
+
+    // Atualizar estatísticas
+    document.getElementById('totalCodes').textContent = total;
+    document.getElementById('activeCodes').textContent = active;
+    document.getElementById('expiredCodes').textContent = expired;
+}
+
+// ============================================
+// FUNÇÕES DE ARMAZENAMENTO
+// ============================================
+function getCodes() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+}
+
+function saveCodes(codes) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
+}
+
+// ============================================
+// FUNÇÕES AUXILIARES
+// ============================================
+function formatDate(date) {
+    return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        loginAdmin();
+    }
+});
+
+// Verificar se já está autenticado
+checkAuth();
+</script>
+</body>
+</html>

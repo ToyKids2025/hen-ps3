@@ -1,37 +1,52 @@
 // ============================================
-// SISTEMA DE CÓDIGOS HEN PS3
+// SISTEMA DE CÓDIGOS HEN PS3 - DINÂMICO
 // ============================================
-// Formato: "CODIGO": "DATA_EXPIRACAO"
-// Data no formato: "AAAA-MM-DD"
+// Os códigos são gerenciados pelo painel admin
 // ============================================
 
-var validCodes = {
-    // EXEMPLOS (remova após testar):
-    "HEN-TESTE-001": "2024-12-31",  // Código de teste
-    "HEN-DEMO-002": "2024-12-31",   // Código demo
-    
-    // ADICIONE SEUS CÓDIGOS AQUI:
-    // "HEN-CLIENTE-001": "2024-11-28",
-    // "HEN-CLIENTE-002": "2024-11-29",
-};
+const STORAGE_KEY = "henCodes";
 
 // ============================================
-// NÃO MODIFIQUE ABAIXO DESTA LINHA
+// FUNÇÃO DE VALIDAÇÃO DE CÓDIGO
 // ============================================
 function validateCode(code) {
-    if (!validCodes[code]) {
+    // Buscar códigos do localStorage
+    var codes = getCodes();
+
+    if (!codes[code]) {
         return { valid: false, message: "Código inválido!" };
     }
-    
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    var expiryDate = new Date(validCodes[code]);
-    expiryDate.setHours(23, 59, 59, 999);
-    
-    if (today > expiryDate) {
-        return { valid: false, message: "Código expirado! Validade até " + validCodes[code] };
+
+    var now = new Date();
+    var expiryDate = new Date(codes[code].expiry);
+
+    if (now > expiryDate) {
+        return {
+            valid: false,
+            message: "Código expirado! Validade até " + formatDate(expiryDate)
+        };
     }
-    
-    return { valid: true, message: "Código válido!" };
+
+    return {
+        valid: true,
+        message: "Código válido até " + formatDate(expiryDate)
+    };
+}
+
+// ============================================
+// FUNÇÕES AUXILIARES
+// ============================================
+function getCodes() {
+    var stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+}
+
+function formatDate(date) {
+    return date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
